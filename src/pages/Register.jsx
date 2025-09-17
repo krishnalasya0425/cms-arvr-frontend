@@ -8,6 +8,8 @@ export default function Register({ setPage }) {
   const [error, setError] = useState("");
 
   const handleRegister = async () => {
+    setError("");
+    setMessage("");
     try {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
@@ -17,13 +19,13 @@ export default function Register({ setPage }) {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage("Registration successful! Please login.");
+        setMessage("✅ Registration successful! Redirecting to login...");
         setTimeout(() => setPage("login"), 1500);
       } else {
         setError(data.message || "Registration failed");
       }
     } catch (err) {
-      setError("Server error");
+      setError("Server error, please try again.");
     }
   };
 
@@ -31,11 +33,10 @@ export default function Register({ setPage }) {
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center text-black mb-6">Register</h2>
-        
+
         {message && <p className="text-green-600 text-sm mb-3">{message}</p>}
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        {/* Username */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Username</label>
           <input
@@ -47,7 +48,6 @@ export default function Register({ setPage }) {
           />
         </div>
 
-        {/* Email */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
@@ -59,7 +59,6 @@ export default function Register({ setPage }) {
           />
         </div>
 
-        {/* Password */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Password</label>
           <input
@@ -71,7 +70,6 @@ export default function Register({ setPage }) {
           />
         </div>
 
-        {/* Button */}
         <button
           onClick={handleRegister}
           className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition"
@@ -79,7 +77,6 @@ export default function Register({ setPage }) {
           Register
         </button>
 
-        {/* Footer */}
         <p className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{" "}
           <span
