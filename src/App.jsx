@@ -1,30 +1,30 @@
 import { useState, useEffect } from "react";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const [page, setPage] = useState("login");
+  const [page, setPage] = useState("landing"); // Start with landing page
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setIsLoggedIn(true);
   }, []);
 
-  if (isLoggedIn) {
-    return <Dashboard setIsLoggedIn={setIsLoggedIn} />;
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      {page === "login" ? (
+    <>
+      {page === "landing" ? (
+        <LandingPage setPage={setPage} /> // Show landing first
+      ) : page === "login" ? (
         <Login setPage={setPage} setIsLoggedIn={setIsLoggedIn} />
       ) : (
         <Register setPage={setPage} />
       )}
-    </div>
+      <ToastContainer position="bottom-center" autoClose={2000} hideProgressBar />
+    </>
   );
 }
 

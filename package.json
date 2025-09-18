@@ -2,20 +2,24 @@
   "name": "cms-arvr-frontend",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"npm run backend\" \"npm run client\" \"wait-on http://localhost:5173 && electron .\"",
-    "backend": "cd ../cms-arvr-backend && npm run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run client\" \"wait-on http://localhost:5173 && npm run electron\"",
+    "backend": "cd C:\\Users\\gtsra\\cms-arvr-backend && npm run dev",
     "client": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron": "electron ."
+    "electron": "electron .",
+    "dist": "electron-builder"
   },
-  "main": "electron/main.js",
   "dependencies": {
     "axios": "^1.11.0",
+    "framer-motion": "^12.23.14",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
+    "react-toastify": "^11.0.5",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
