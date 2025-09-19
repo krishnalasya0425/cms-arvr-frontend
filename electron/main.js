@@ -136,54 +136,50 @@ app.whenReady().then(() => {
   });
 
   // ===== Launch Unity Build (EXE or WebGL) =====
-  ipcMain.handle("launch-unity-build", async (event, folderPath) => {
-    if (!folderPath) return { success: false, message: "No folder path provided" };
+ipcMain.handle("launch-unity-build", async (event, folderPath) => {
+  if (!folderPath) return { success: false, message: "No folder path provided" };
 
-    try {
-      const files = fs.readdirSync(folderPath);
+  try {
+    const files = fs.readdirSync(folderPath);
 
-      // Case 1: WebGL build (look for index.html)
-      if (files.includes("index.html")) {
-        if (gameView) {
-          mainWindow.removeBrowserView(gameView);
-          gameView.destroy();
-        }
-
-        gameView = new BrowserView({
-          webPreferences: {
-            contextIsolation: true,
-            nodeIntegration: false,
-          },
-        });
-
-        mainWindow.setBrowserView(gameView);
-
-        const [width, height] = mainWindow.getContentSize();
-        gameView.setBounds({ x: 300, y: 0, width: width - 300, height });
-
-        await gameView.webContents.loadFile(path.join(folderPath, "index.html"));
-        return { success: true, message: "WebGL build loaded inside dashboard" };
+    // If WebGL build exists
+    if (files.includes("index.html")) {
+      if (gameView) {
+        mainWindow.removeBrowserView(gameView);
+        gameView.destroy();
       }
 
-      // Case 2: Windows EXE build
-      const exeFiles = files.filter(f => f.endsWith(".exe"));
-      if (exeFiles.length === 0) {
-        return { success: false, message: "No .exe or WebGL build found in folder" };
-      }
-
-      const exePath = path.join(folderPath, exeFiles[0]);
-      execFile(exePath, (err) => {
-        if (err) {
-          console.error("Error launching Unity build:", err);
-        }
+      gameView = new BrowserView({
+        webPreferences: { contextIsolation: true, nodeIntegration: false },
       });
 
-      return { success: true, message: `Launched EXE: ${exeFiles[0]}` };
-    } catch (err) {
-      console.error(err);
-      return { success: false, message: err.message };
+      mainWindow.setBrowserView(gameView);
+
+      const [width, height] = mainWindow.getContentSize();
+      gameView.setBounds({ x: 300, y: 0, width: width - 300, height });
+
+      await gameView.webContents.loadFile(path.join(folderPath, "index.html"));
+      return { success: true, message: "WebGL build loaded inside dashboard" };
     }
-  });
+
+    // Otherwise, look for EXE
+    const exeFiles = files.filter(f => f.endsWith(".exe"));
+    if (exeFiles.length === 0) {
+      return { success: false, message: "No .exe or WebGL build found in folder" };
+    }
+
+    const exePath = path.join(folderPath, exeFiles[0]);
+    execFile(exePath, (err) => {
+      if (err) console.error("Error launching Unity build:", err);
+    });
+
+    return { success: true, message: `Launched EXE: ${exeFiles[0]}` };
+  } catch (err) {
+    console.error(err);
+    return { success: false, message: err.message };
+  }
+});
+
 });
 
 app.on("window-all-closed", () => {
