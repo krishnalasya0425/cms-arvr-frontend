@@ -1,69 +1,74 @@
 import { useState } from "react";
-import InputField from "../components/InputField";
+import { showSuccess, showError } from "../components/Toast";
+import { useNavigate } from "react-router-dom";
 
-export default function Login({ setPage, setIsLoggedIn, setUserRole }) {
-  const [email, setEmail] = useState("");
+export default function Login({ setIsLoggedIn }) {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
-    setError("");
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
-      if (res.ok) {
+      // safely parse JSON
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.token) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
         setIsLoggedIn(true);
-        setUserRole(data.user.role);
+        showSuccess("Logged in successfully!");
+        navigate("/dashboard"); // redirect after login
       } else {
-        setError(data.message || "Login failed");
+        showError(data?.message || "Login failed");
       }
-    } catch {
-      setError("Server error, please try again.");
+    } catch (err) {
+      console.error(err);
+      showError("Server error");
     }
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg w-96 text-black">
-      <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-
-      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-
-      <InputField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <InputField
-        label="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <button
-        onClick={handleLogin}
-        className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Login
-      </button>
-
-      <p className="text-sm text-gray-600 mt-4 text-center">
-        Don’t have an account?{" "}
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('/bgiiii.png')" }}
+    >
+      <div className="p-8 rounded-2xl shadow-lg w-96 bg-green-50">
+        <h2 className="text-2xl font-bold text-center text-green-900 mb-6">Login</h2>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
         <button
-          onClick={() => setPage("register")}
-          className="text-blue-600 hover:underline"
+          onClick={handleLogin}
+          className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition"
         >
-          Register
+          Login
         </button>
-      </p>
+        <p className="mt-4 text-center text-green-800 font-medium no-underline">
+          Don’t have an account?{" "}
+          <span
+            onClick={() => navigate("/register")}
+            className="cursor-pointer underline"
+          >
+            Register
+          </span>
+        </p>
+      </div>
     </div>
   );
 }
