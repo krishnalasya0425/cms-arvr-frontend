@@ -49,14 +49,15 @@ export default function Dashboard({ setIsLoggedIn }) {
       }
     } else {
       axios
-        .get("http://localhost:5000/api/projects/assigned", {
+        .get("http://localhost:5000/api/projects", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
-          console.log("Assigned projects:", res.data); // <-- check this
+          console.log("Assigned projects:", res.data);
           setProjects(res.data);
         })
         .catch((err) => console.error(err));
+
     }
   }, [activeTab, token, user]);
 
@@ -247,25 +248,63 @@ export default function Dashboard({ setIsLoggedIn }) {
         )}
 
         {/* Normal user view */}
-        {user?.role !== "admin" && activeTab === "projects" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">My Projects</h2>
-            {projects.length === 0 ? (
-              <p className="text-gray-600">No projects assigned.</p>
-            ) : (
-              <ul className="space-y-2">
-                {projects.map((p) => (
-                  <li
-                    key={p._id}
-                    className="bg-white p-3 rounded shadow flex justify-between"
-                  >
-                    {p.name}
+     {user?.role !== "admin" && activeTab === "projects" && (
+  <div>
+    <h2 className="text-2xl font-bold mb-4">My Projects</h2>
+    {projects.length === 0 ? (
+      <p className="text-gray-600">No projects assigned.</p>
+    ) : (
+      <ul className="space-y-4">
+        {projects.map((p) => (
+          <li key={p._id} className="bg-white p-4 rounded shadow">
+            <h3 className="text-lg font-semibold mb-2">{p.name}</h3>
+
+            {p.modules?.length > 0 ? (
+              <ul className="ml-4 space-y-2">
+                {p.modules.map((mod, mi) => (
+                  <li key={mi}>
+                    <div className="flex items-center justify-between font-medium">
+                      <span>Module: {mod.name}</span>
+                      {mod.buildPath && (
+                        <button
+                          className="ml-2 px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                          onClick={() => launchUnityBuild(mod.buildPath)}
+                        >
+                          Launch Build
+                        </button>
+                      )}
+                    </div>
+
+                    {mod.subModules?.length > 0 && (
+                      <ul className="ml-4 mt-1 space-y-1">
+                        {mod.subModules.map((sub, si) => (
+                          <li key={si} className="flex items-center justify-between text-gray-700">
+                            <span>Submodule: {sub.name}</span>
+                            {sub.buildPath && (
+                              <button
+                                className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                                onClick={() => launchUnityBuild(sub.buildPath)}
+                              >
+                                Launch Build
+                              </button>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 ))}
               </ul>
+            ) : (
+              <p className="text-gray-500">No modules assigned</p>
             )}
-          </div>
-        )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)}
+
       </main>
     </div>
   );
