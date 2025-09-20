@@ -426,6 +426,7 @@ import React, { useState } from "react";
 import ProjectRow from "./ProjectRow";
 import InfoModal from "./InfoModal";
 import EditModal from "./EditModal";
+import axios from "axios";
 
 export default function ProjectsTable({
   projects,
@@ -440,20 +441,40 @@ export default function ProjectsTable({
   const [editProject, setEditProject] = useState(null);
   const [selectedUser, setSelectedUser] = useState("");
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
   if (!editProject) return;
 
-  if (selectedUser) {
-    // call assign API
-    onAssignUsers(editProject._id, selectedUser);
-  } else {
-    // if admin cleared the selection, unassign
-    onUnassignUser(editProject._id);
-  }
+  try {
+    const token = localStorage.getItem("token"); // ✅ get token
 
-  setEditProject(null);
-  setSelectedUser("");
+    // 1️⃣ Update modules/submodules and project name
+    const res = await axios.put(
+      `http://localhost:5000/api/projects/${editProject._id}`,
+      {
+        name: editProject.name,
+        modules: editProject.modules,
+      },
+      { headers: { Authorization: `Bearer ${token}` } } // use token
+    );
+
+    // 2️⃣ Assign user if selected
+    if (selectedUser) {
+      await onAssignUsers(editProject._id, selectedUser);
+    } else if (!editProject.assignedTo) {
+      await onUnassignUser(editProject._id);
+    }
+
+    // 3️⃣ Update frontend state
+    onUpdateProject(res.data);
+    setEditProject(null);
+    setSelectedUser("");
+  } catch (err) {
+    console.error("Save changes error:", err);
+    alert("Failed to save project changes");
+  }
 };
+
+
 
 
   const handleUnassign = (projectId) => {

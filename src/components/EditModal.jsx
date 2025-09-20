@@ -38,11 +38,11 @@ export default function EditModal({
           ? subIdx === null
             ? { ...m, buildPath: folderPath }
             : {
-                ...m,
-                subModules: m.subModules.map((s, sIdx) =>
-                  sIdx === subIdx ? { ...s, buildPath: folderPath } : s
-                ),
-              }
+              ...m,
+              subModules: m.subModules.map((s, sIdx) =>
+                sIdx === subIdx ? { ...s, buildPath: folderPath } : s
+              ),
+            }
           : m
       ),
     }));
@@ -140,17 +140,28 @@ export default function EditModal({
 
               <button
                 className="mt-2 px-2 py-1 text-xs bg-blue-500 text-white rounded"
-                onClick={() =>
-                  setEditProject((prev) => ({
-                    ...prev,
-                    modules: prev.modules.map((m, idx) =>
-                      idx === mi ? { ...m, subModules: [...(m.subModules || []), { name: "", buildPath: "" }] } : m
-                    ),
-                  }))
-                }
+                onClick={() => {
+                  setEditProject((prev) => {
+                    if (!prev.modules) return prev; // safety check
+                    return {
+                      ...prev,
+                      modules: prev.modules.map((m, idx) =>
+                        idx === mi
+                          ? {
+                            ...m,
+                            subModules: m.subModules
+                              ? [...m.subModules, { name: "", buildPath: "" }]
+                              : [{ name: "", buildPath: "" }],
+                          }
+                          : m
+                      ),
+                    };
+                  });
+                }}
               >
                 + Add Submodule
               </button>
+
             </div>
           ))}
 
