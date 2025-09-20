@@ -105,12 +105,12 @@ export default function Dashboard({ setIsLoggedIn }) {
   const handleAssignUsers = async (projectId, userId) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/projects/${projectId}/assign-user`,
+        `http://localhost:5000/api/projects/${projectId}/assign`,   // ✅ fixed endpoint
         { userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setProjects(projects.map(p => (p._id === projectId ? res.data : p)));
+      setProjects(projects.map((p) => (p._id === projectId ? res.data : p)));
     } catch (err) {
       console.error(err);
       alert("Failed to assign user");
@@ -133,10 +133,12 @@ export default function Dashboard({ setIsLoggedIn }) {
   const handleUnassignUser = async (projectId) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/projects/${projectId}/unassign-user`,
+        `http://localhost:5000/api/projects/${projectId}/unassign`, // ✅ fixed endpoint
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      // backend returns { message, project }
       setProjects(
         projects.map((p) => (p._id === projectId ? res.data.project : p))
       );
@@ -238,11 +240,9 @@ export default function Dashboard({ setIsLoggedIn }) {
 
 
             {activeTab === "users" && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">All Users</h2>
-                <UsersTable users={users} />
-              </div>
+              <UsersTable token={token} />
             )}
+
           </>
         )}
 

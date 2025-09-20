@@ -441,27 +441,20 @@ export default function ProjectsTable({
   const [selectedUser, setSelectedUser] = useState("");
 
   const handleSaveChanges = () => {
-    if (!editProject) return;
+  if (!editProject) return;
 
-    const updatedProject = JSON.parse(JSON.stringify(editProject));
+  if (selectedUser) {
+    // call assign API
+    onAssignUsers(editProject._id, selectedUser);
+  } else {
+    // if admin cleared the selection, unassign
+    onUnassignUser(editProject._id);
+  }
 
-    if (selectedUser) {
-      updatedProject.assignedTo = users.find((u) => u._id === selectedUser) || null;
-    } else if (!selectedUser && editProject.assignedTo) {
-      updatedProject.assignedTo = editProject.assignedTo;
-    } else {
-      updatedProject.assignedTo = null;
-    }
+  setEditProject(null);
+  setSelectedUser("");
+};
 
-    updatedProject.modules = (updatedProject.modules || []).map((mod) => ({
-      ...mod,
-      subModules: mod.subModules || [],
-    }));
-
-    onUpdateProject(updatedProject);
-    setEditProject(null);
-    setSelectedUser("");
-  };
 
   const handleUnassign = (projectId) => {
     onUnassignUser(projectId);

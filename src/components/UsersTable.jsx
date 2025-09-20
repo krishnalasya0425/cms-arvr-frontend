@@ -1,32 +1,55 @@
-// components/UsersTable.jsx
-export default function UsersTable({ users }) {
-  if (!users || users.length === 0)
-    return <p className="text-gray-600">No users found.</p>;
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+export default function UsersTable({ token }) {
+  const [users, setUsers] = useState([]);
+
+  // fetch users list
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/all-users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    }
+  };
+
+  useEffect(() => {
+    if (token) fetchUsers();
+  }, [token]);
+
+
+  // update user after assign/unassign
+  const refreshUser = (userId, assignedProject) => {
+    setUsers((prev) =>
+      prev.map((u) =>
+        u._id === userId ? { ...u, assignedProject } : u
+      )
+    );
+  };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="text-left px-4 py-2 border-b">Username</th>
-            <th className="text-left px-4 py-2 border-b">Email</th>
-            <th className="text-left px-4 py-2 border-b">Role</th>
-            <th className="text-left px-4 py-2 border-b">Assigned Project</th>
+    <table className="table-auto border-collapse border border-gray-300 w-full">
+      <thead>
+        <tr className="bg-gray-200">
+          <th className="border border-gray-300 px-4 py-2">Username</th>
+          <th className="border border-gray-300 px-4 py-2">Email</th>
+          <th className="border border-gray-300 px-4 py-2">Assigned Project</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map((u) => (
+          <tr key={u._id}>
+            <td className="border border-gray-300 px-4 py-2">{u.username}</td>
+            <td className="border border-gray-300 px-4 py-2">{u.email}</td>
+            <td className="border border-gray-300 px-4 py-2">
+              {u.assignedProject ? u.assignedProject.name : "Not Assigned"}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u._id} className="hover:bg-gray-50">
-              <td className="px-4 py-2 border-b">{u.username}</td>
-              <td className="px-4 py-2 border-b">{u.email}</td>
-              <td className="px-4 py-2 border-b capitalize">{u.role}</td>
-              <td className="px-4 py-2 border-b">
-                {u.assignedProject ? u.assignedProject.name : "Not assigned"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   );
 }
