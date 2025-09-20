@@ -81,7 +81,7 @@ export default function EditModal({
               ))}
             </select>
           ) : (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-b5etween items-center">
               <span className="px-2 py-1 bg-green-100 text-green-800 rounded">
                 {project.assignedTo.username} ({project.assignedTo.email})
               </span>
