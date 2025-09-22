@@ -2,7 +2,7 @@ import { useState } from "react";
 import { showSuccess, showError } from "../components/Toast";
 
 export default function Login({ setPage, setIsLoggedIn }) {
-  const [username, setUsername] = useState(""); // fixed state
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
@@ -10,7 +10,7 @@ export default function Login({ setPage, setIsLoggedIn }) {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }), // use username
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -28,34 +28,43 @@ export default function Login({ setPage, setIsLoggedIn }) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/bgiiii.png')" }}
+      className="min-h-screen flex items-center justify-end bg-cover bg-center pr-32"
+      style={{ backgroundImage: "url('/pin2.jpg')" }}
     >
-      <div className="p-8 rounded-2xl shadow-lg w-96 bg-green-50">
-        <h2 className="text-2xl font-bold text-center text-green-900 mb-6">Login</h2>
+      <div className="p-8 rounded-2xl shadow-lg w-96 bg-black/70 border border-cyan-400 backdrop-blur-sm">
+        <h2 className="text-2xl font-bold text-center text-cyan-300 mb-6">
+          Login
+        </h2>
+
         <input
           type="text"
           placeholder="Enter Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)} // fixed typo
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full px-4 py-3 mb-4 rounded-xl border border-cyan-400 bg-black/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
+
         <input
           type="password"
           placeholder="Enter Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-4 py-3 mb-4 rounded-xl border border-cyan-400 bg-black/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
+
         <button
           onClick={handleLogin}
-          className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition"
+          className="w-full bg-cyan-500 text-black font-semibold py-3 rounded-xl hover:bg-cyan-400 transition shadow-lg shadow-cyan-500/40"
         >
           Login
         </button>
-        <p className="mt-4 text-center text-green-800 font-medium no-underline">
-          Don’t have an account?{" "}
-          <span onClick={() => setPage("register")} className="cursor-pointer underline">
+
+        <p className="mt-4 text-center text-cyan-300 font-medium">
+          Don&apos;t have an account?{" "}
+          <span
+            onClick={() => setPage("register")}
+            className="cursor-pointer underline hover:text-cyan-400"
+          >
             Register
           </span>
         </p>
