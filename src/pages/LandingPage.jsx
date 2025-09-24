@@ -1,7 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function LandingPage({ setPage }) {
+  const navigate=useNavigate()
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
       {/* Base Background */}
@@ -65,7 +67,7 @@ export default function LandingPage({ setPage }) {
         <h1 className="text-2xl font-bold text-cyan-300">AR/VR</h1>
         <div className="space-x-4">
           <button
-            onClick={() => setPage("login")}
+             onClick={() => navigate("/login")}
             className="px-4 py-2 border border-cyan-300 text-cyan-300 rounded hover:bg-cyan-300 hover:text-black transition"
           >
             Login
