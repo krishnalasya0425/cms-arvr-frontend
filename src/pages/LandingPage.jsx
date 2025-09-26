@@ -1,7 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-export default function LandingPage({ setPage }) {
+export default function LandingPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
       {/* Base Background */}
@@ -15,12 +18,7 @@ export default function LandingPage({ setPage }) {
       <div className="absolute inset-0 opacity-30">
         <svg className="w-full h-full">
           <defs>
-            <pattern
-              id="grid"
-              width="80"
-              height="80"
-              patternUnits="userSpaceOnUse"
-            >
+            <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
               <path
                 d="M 80 0 L 0 0 0 80"
                 fill="none"
@@ -65,13 +63,13 @@ export default function LandingPage({ setPage }) {
         <h1 className="text-2xl font-bold text-cyan-300">AR/VR</h1>
         <div className="space-x-4">
           <button
-            onClick={() => setPage("login")}
+            onClick={() => navigate("/login")}
             className="px-4 py-2 border border-cyan-300 text-cyan-300 rounded hover:bg-cyan-300 hover:text-black transition"
           >
             Login
           </button>
           <button
-            onClick={() => setPage("register")}
+            onClick={() => navigate("/register")}
             className="px-4 py-2 bg-cyan-400 text-black rounded hover:bg-cyan-500 transition"
           >
             Sign Up

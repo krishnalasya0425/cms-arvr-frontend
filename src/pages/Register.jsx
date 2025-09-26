@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { showSuccess, showError } from "../components/Toast";
+import { showSuccess, showError } from "../components/toast";
 
 export default function Register({ setPage }) {
   const [username, setUsername] = useState("");

@@ -12,7 +12,7 @@ export default function VRView({ onBack, vrBuildPath }) {
 
   const launchVR = () => {
     if (!vrBuildPath) return alert("No VR build assigned!");
-    window.electronAPI.launchUnityBuild(vrBuildPath);
+    window.electronAPI.launchUnityBuild(vrBuildPath); // same buildPath as Launch Build
   };
 
   return (
@@ -53,3 +53,4 @@ export default function VRView({ onBack, vrBuildPath }) {
     </div>
   );
 }
+

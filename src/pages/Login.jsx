@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { showSuccess, showError } from "../components/Toast";
+import { showSuccess, showError } from "../components/toast";
 import { useNavigate } from "react-router-dom";
 
 export default function Login({ setIsLoggedIn }) {
