@@ -74,43 +74,29 @@ const ProjectsTab = ({
     const handleCreateProject = async () => {
         if (!projectName) return alert("Project name is required");
 
-        // Validate modules
-        for (let i = 0; i < modules.length; i++) {
-            const mod = modules[i];
-            if (!mod.name) return alert(`Module ${i + 1} name is required`);
-            for (let j = 0; j < mod.subModules.length; j++) {
-                const sub = mod.subModules[j];
-                if (!sub.name)
-                    return alert(`Submodule ${j + 1} of Module ${i + 1} name is required`);
-            }
-        }
-
-        // Validate models
-        for (let i = 0; i < models.length; i++) {
-            const mod = models[i];
-            if (!mod.name) return alert(`Model ${i + 1} name is required`);
-            for (let j = 0; j < mod.subModels.length; j++) {
-                const sub = mod.subModels[j];
-                if (!sub.name)
-                    return alert(`Submodel ${j + 1} of Model ${i + 1} name is required`);
-            }
-        }
+        // Optional: remove empty modules and models
+        const filteredModules = modules.filter(
+            (mod) => mod.name || (mod.subModules?.some((sub) => sub.name))
+        );
+        const filteredModels = models.filter(
+            (mod) => mod.name || (mod.subModels?.some((sub) => sub.name))
+        );
 
         try {
             if (editingProject) {
                 // Update project
                 await api.put(`/projects/${editingProject._id}`, {
                     name: projectName,
-                    modules,
-                    models,
+                    modules: filteredModules,
+                    models: filteredModels,
                     assignedTo: assignedUser || null,
                 });
             } else {
                 // Create new project
                 await api.post("/projects/create", {
                     name: projectName,
-                    modules,
-                    models,
+                    modules: filteredModules,
+                    models: filteredModels,
                     assignedTo: assignedUser || null,
                 });
             }
@@ -313,7 +299,9 @@ const ProjectsTab = ({
                                     <input
                                         type="text"
                                         value={mod.name}
-                                        onChange={(e) => handleModelChange(i, "filePath", e.target.files[0]?.path || "")}
+                                        onChange={(e) =>
+                                            handleModelChange(i, "name", e.target.value)
+                                        }
                                         className="w-full border border-gray-300 rounded px-3 py-2"
                                     />
                                 </div>
@@ -434,52 +422,6 @@ const ProjectsTab = ({
                                             Launch Build
                                         </button>
                                     )}
-                                    {/* Models */}
-                                    {showInfoModal.models?.length > 0 && (
-                                        <div className="mb-4">
-                                            <h4 className="font-semibold mb-2">Models:</h4>
-                                            {showInfoModal.models.map((mod, i) => (
-                                                <div key={i} className="mb-3 border p-2 rounded">
-                                                    <p>
-                                                        <strong>Model Name:</strong> {mod.name}
-                                                    </p>
-                                                    <p>
-                                                        <strong>File:</strong> {mod.filePath || "N/A"}
-                                                    </p>
-                                                    {mod.filePath && (
-                                                        <button
-  onClick={() => window.open(`http://localhost:5000/api/projects/models/view?path=${encodeURIComponent(mod.filePath)}`, "_blank")}
-  className="mt-1 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
->
-  View
-</button>
-
-
-                                                    )}
-                                                    {mod.subModels.map((sub, j) => (
-                                                        <div key={j} className="mb-2 pl-4 border-l">
-                                                            <p>
-                                                                <strong>Sub Model Name:</strong> {sub.name}
-                                                            </p>
-                                                            <p>
-                                                                <strong>File:</strong> {sub.filePath || "N/A"}
-                                                            </p>
-                                                            {sub.filePath && (
-                                                                <button
-                                                                    onClick={() => window.open(`/models/view?path=${encodeURIComponent(sub.filePath)}`, "_blank")}
-                                                                    className="mt-1 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                                                                >
-                                                                    View
-                                                                </button>
-
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
                                     {mod.subModules.map((sub, j) => (
                                         <div key={j} className="mb-2 pl-4 border-l">
                                             <p>
@@ -514,6 +456,21 @@ const ProjectsTab = ({
                                         <p>
                                             <strong>File:</strong> {mod.filePath || "N/A"}
                                         </p>
+                                        {mod.filePath && (
+                                            <button
+                                                onClick={() =>
+                                                    window.open(
+                                                        `http://localhost:5000/api/projects/models/view?path=${encodeURIComponent(
+                                                            mod.filePath
+                                                        )}`,
+                                                        "_blank"
+                                                    )
+                                                }
+                                                className="mt-1 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                            >
+                                                View
+                                            </button>
+                                        )}
                                         {mod.subModels.map((sub, j) => (
                                             <div key={j} className="mb-2 pl-4 border-l">
                                                 <p>
