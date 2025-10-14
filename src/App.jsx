@@ -1,49 +1,39 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext"; // Import AuthProvider
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard"; // import your dashboard page
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "./router/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserDashboard from "./pages/UserDashboard";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) setIsLoggedIn(true);
-  }, []);
-
   return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={!isLoggedIn ? <LandingPage /> : <Navigate to="/dashboard" />}
-        />
-        <Route
-          path="/login"
-          element={!isLoggedIn ? <Login setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/dashboard" />}
-        />
-        <Route
-          path="/register"
-          element={!isLoggedIn ? <Register /> : <Navigate to="/dashboard" />}
-        />
+    <AuthProvider> {/* Wrap everything with AuthProvider */}
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />  {/* landing page is login */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Protected Route */}
-        <Route
-          path="/dashboard"
-          element={isLoggedIn ? <Dashboard setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/login" />}
-        />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-
-      <ToastContainer position="bottom-center" autoClose={2000} hideProgressBar />
-    </Router>
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user-dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
