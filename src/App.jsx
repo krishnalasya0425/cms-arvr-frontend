@@ -1,49 +1,46 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import Login from "./pages/Login";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard"; // import your dashboard page
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserDashboard from "./pages/UserDashboard";
+import VRViewer from "./pages/VRViewer";
+const PrivateRoute = ({ children, role }) => {
+  const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");
+
+  if (!token) return <Navigate to="/login" />;
+  if (role && userRole !== role) return <Navigate to="/login" />;
+
+  return children;
+};
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) setIsLoggedIn(true);
-  }, []);
-
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
-          path="/"
-          element={!isLoggedIn ? <LandingPage /> : <Navigate to="/dashboard" />}
+          path="/admin"
+          element={
+            <PrivateRoute role="admin">
+              <AdminDashboard />
+            </PrivateRoute>
+          } 
         />
         <Route
-          path="/login"
-          element={!isLoggedIn ? <Login setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/dashboard" />}
+          path="/user"
+          element={
+            <PrivateRoute role="user">
+              <UserDashboard />
+            </PrivateRoute>
+          }
         />
-        <Route
-          path="/register"
-          element={!isLoggedIn ? <Register /> : <Navigate to="/dashboard" />}
-        />
-
-        {/* Protected Route */}
-        <Route
-          path="/dashboard"
-          element={isLoggedIn ? <Dashboard setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/login" />}
-        />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/vr-viewer" element={<VRViewer />} />
       </Routes>
-
-      <ToastContainer position="bottom-center" autoClose={2000} hideProgressBar />
-    </Router>
+    </BrowserRouter>
   );
 }
 

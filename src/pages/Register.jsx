@@ -1,74 +1,57 @@
 import { useState } from "react";
-import { showSuccess, showError } from "../components/Toast";
+import API from "../utils/api";
+import { useNavigate, Link } from "react-router-dom";
 
-export default function Register({ setPage }) {
-  const [username, setUsername] = useState("");
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleRegister = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await res.json();
-      console.log(data);
-      
-      if (res.ok) {
-        showSuccess("Registered successfully!");
-        setTimeout(() => setPage("login"), 1500);
-      } else {
-        showError(data.message || "Registration failed");
-      }
+      const res = await API.post("/auth/register", { email, password });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.user.role);
+      navigate(res.data.user.role === "admin" ? "/admin" : "/user");
     } catch (err) {
-      showError("Server error");
+      alert(err.response?.data?.error || "Registration failed");
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/bgiiii.png')" }}
-    >
-      <div className="p-8 rounded-2xl shadow-lg w-96 bg-green-50">
-        <h2 className="text-2xl font-bold text-center text-green-900 mb-6">Register</h2>
-        <input
-          type="text"
-          placeholder="Enter Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 p-8 border rounded shadow bg-white w-80"
+      >
+        <h2 className="text-2xl font-bold text-center">Register</h2>
         <input
           type="email"
-          placeholder="Enter Email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="p-2 border rounded"
+          required
         />
         <input
           type="password"
-          placeholder="Enter Password"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="p-2 border rounded"
+          required
         />
-        <button
-          onClick={handleRegister}
-          className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition"
-        >
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
           Register
         </button>
-        <p className="mt-4 text-center text-green-800 font-medium no-underline">
+        <p className="text-center text-sm">
           Already have an account?{" "}
-          <span onClick={() => setPage("login")} className="cursor-pointer underline">
+          <Link to="/login" className="text-blue-500 underline">
             Login
-          </span>
+          </Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 }

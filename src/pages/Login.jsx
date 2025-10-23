@@ -1,74 +1,63 @@
 import { useState } from "react";
-import { showSuccess, showError } from "../components/Toast";
-import { useNavigate } from "react-router-dom";
+import API from "../utils/api";
+import { useNavigate, Link } from "react-router-dom";
 
-export default function Login({ setIsLoggedIn }) {
-  const [username, setUsername] = useState("");
+export default function Login() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await API.post("/auth/login", { email, password });
+    
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("role", res.data.user.role);
 
-      // safely parse JSON
-      const data = await res.json().catch(() => null);
+    // <-- Add this line
+    localStorage.setItem("userId", res.data.user._id);
 
-      if (res.ok && data?.token) {
-        localStorage.setItem("token", data.token);
-        setIsLoggedIn(true);
-        showSuccess("Logged in successfully!");
-        navigate("/dashboard"); // redirect after login
-      } else {
-        showError(data?.message || "Login failed");
-      }
-    } catch (err) {
-      console.error(err);
-      showError("Server error");
-    }
-  };
+    navigate(res.data.user.role === "admin" ? "/admin" : "/user");
+  } catch (err) {
+    alert(err.response?.data?.error || "Login failed");
+  }
+};
+
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/bgiiii.png')" }}
-    >
-      <div className="p-8 rounded-2xl shadow-lg w-96 bg-green-50">
-        <h2 className="text-2xl font-bold text-center text-green-900 mb-6">Login</h2>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 p-8 border rounded shadow bg-white w-80"
+      >
+        <h2 className="text-2xl font-bold text-center">Login</h2>
         <input
-          type="text"
-          placeholder="Enter Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="p-2 border rounded"
+          required
         />
         <input
           type="password"
-          placeholder="Enter Password"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 mb-4 rounded-xl border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="p-2 border rounded"
+          required
         />
-        <button
-          onClick={handleLogin}
-          className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition"
-        >
+        <button type="submit" className="bg-green-500 text-white p-2 rounded">
           Login
         </button>
-        <p className="mt-4 text-center text-green-800 font-medium no-underline">
+        <p className="text-center text-sm">
           Don’t have an account?{" "}
-          <span
-            onClick={() => navigate("/register")}
-            className="cursor-pointer underline"
-          >
+          <Link to="/register" className="text-blue-500 underline">
             Register
-          </span>
+          </Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 }
